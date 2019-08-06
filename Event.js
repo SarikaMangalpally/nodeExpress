@@ -50,7 +50,7 @@ function postEvent(req, res) {
     // console.log(event);
     res.status(201).json(event);
   } else {
-    res.status(400).json({ error: `${value}` });
+    res.status(205).json({ error: `${value}` });
   }
 }
 function checkValidity(newData) {
