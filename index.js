@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 app.get("/events", (req, res) => {
   var buffer = fs.readFileSync("db.json", "utf8");
   var data = buffer.toString("utf8");
-  res.json(data);
+  res.status(200).json(JSON.parse(data));
 });
 app.get("/events/:id", (req, res) => {
   const elementId = parseInt(req.params.id);
@@ -28,10 +28,10 @@ app.get("/events/:id", (req, res) => {
       res.status(200).json(items);
       items = "";
     } else {
-      res.status(404).send("not found");
+      res.status(404).json("not found");
     }
   } else {
-    res.status(204).send("no events");
+    res.status(204).json("no events");
   }
 });
 
@@ -51,18 +51,22 @@ app.post("/events", (req, res) => {
   object.push(event);
   fs.writeFileSync("db.json", JSON.stringify(object));
   console.log(event);
-  res.status(201).send(event);
+  res.status(201).json(event);
 });
-app.put("/events/:id", (req, res) => {
-  var elementId = parseInt(req.params.id);
+function getJsonFileData() {
   if (!fs.existsSync("db.json")) {
-    res.status(404).send("file not found");
+    res.status(404).json("file not found");
   }
-  var updatedData = req.body;
-  //console.log(updatedData);
   const buffer = fs.readFileSync("db.json", "utf8");
   const data = buffer.toString("utf8");
   const object = JSON.parse(data);
+  return object;
+}
+app.put("/events/:id", (req, res) => {
+  var elementId = parseInt(req.params.id);
+  var updatedData = req.body;
+  //console.log(updatedData);
+  var object = getJsonFileData();
   if (object !== "") {
     console.log(object);
     object.filter(item => {
@@ -82,17 +86,12 @@ app.put("/events/:id", (req, res) => {
       res.status(201).json(`no event with id= ${elementId}`);
     }
   } else {
-    res.status(201).send("no contents");
+    res.status(201).json("no contents");
   }
 });
 app.delete("/events/:id", (req, res) => {
-  if (!fs.existsSync("db.json")) {
-    res.status(404).send("file not found");
-  }
   const elementId = parseInt(req.params.id);
-  const buffer = fs.readFileSync("db.json", "utf8");
-  const data = buffer.toString("utf8");
-  const object = JSON.parse(data);
+  var object = getJsonFileData();
   object.map(item => {
     var index = object.indexOf(item);
     if (parseInt(item.id) === elementId) {
@@ -102,7 +101,7 @@ app.delete("/events/:id", (req, res) => {
   if (items !== "") {
     fs.writeFileSync("db.json", JSON.stringify(object));
     items = "";
-    res.status(201).send(object);
+    res.status(201).json(object);
   } else {
     res.status(404).json(`no event with id ${elementId}`);
   }
