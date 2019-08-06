@@ -54,6 +54,17 @@ function postEvent(req, res) {
   }
 }
 function checkValidity(newData) {
+  if (
+    moment(newData.startday, "LL", true).format() === "Invalid date" ||
+    moment(newData.endday, "LL", true).format() === "Invalid date"
+  ) {
+    return `format should be example:"december 12, 1997"`;
+  } else if (
+    moment(newData.starttime, "LT", true).format() === "Invalid date" ||
+    moment(newData.endtime, "LT", true).format() === "Invalid date"
+  ) {
+    return `format should be example:"4:45 pm/PM"`;
+  }
   var sd = moment(newData.startday, "LL", true);
   var ed = moment(newData.endday, "LL", true);
   var st = moment(newData.starttime, "LT", true);
